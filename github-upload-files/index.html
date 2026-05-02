@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ABA RBT Note Inspector</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="topbar" aria-labelledby="app-title">
+        <div>
+          <p class="eyebrow">Florida ABA documentation helper</p>
+          <h1 id="app-title">ABA RBT Note Inspector</h1>
+          <p class="lede">Inspect pasted RBT notes, score Medicaid-style documentation elements, and generate a structured copy/paste note for revision.</p>
+        </div>
+        <div class="score-card" aria-live="polite">
+          <span class="score-label">Current score</span>
+          <strong id="scoreValue">0/16</strong>
+          <span id="scoreStatus" class="status-pill non-compliant">Non-Compliant</span>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="panel controls" aria-label="Smart generator inputs">
+          <div class="panel-header">
+            <h2>Smart Generator</h2>
+            <button id="resetForm" class="icon-button" type="button" title="Clear generator">↺</button>
+          </div>
+
+          <div class="field-grid">
+            <label>
+              Client name
+              <input id="clientName" type="text" placeholder="Client initials or name">
+            </label>
+            <label>
+              Setting
+              <input id="setting" type="text" placeholder="Home, clinic, school">
+            </label>
+            <label>
+              Caregiver present
+              <input id="caregiver" type="text" placeholder="Mother, father, teacher">
+            </label>
+            <label>
+              Session date
+              <input id="sessionDate" type="date">
+            </label>
+            <label>
+              Arrival / opening
+              <input id="arrivalNote" type="text" placeholder="Learner was coming from school and greeted the RBT">
+            </label>
+            <label>
+              Supervisor present
+              <input id="supervisor" type="text" placeholder="BCaBA, BCBA, or none">
+            </label>
+          </div>
+
+          <label>
+            Services provided
+            <input id="services" type="text" value="DTT, NET, FCT, DRA, prompt fading">
+          </label>
+
+          <label>
+            Environmental / medical / safety notes
+            <textarea id="safetyNotes" rows="3">No environmental changes, medical concerns, or safety concerns were reported or observed during the session.</textarea>
+          </label>
+
+          <label>
+            Pairing / engagement
+            <textarea id="pairingNote" rows="3">RBT performed pairing by involving the learner in preferred activities. The learner appeared alert, motivated, and compliant, evidenced by smiles, play, and appropriate interaction with the RBT.</textarea>
+          </label>
+
+          <div class="section-title">
+            <h3>Skill / Replacement Programs</h3>
+            <span>Minimum 3, with behavior data</span>
+          </div>
+          <div id="replacementInputs" class="stack"></div>
+          <button id="addReplacement" type="button" class="secondary wide-button">+ Add skill/replacement program</button>
+
+          <label>
+            Reinforcers used
+            <input id="reinforcers" type="text" value="verbal praise, tokens, access to blocks, drawing materials, short play breaks, and social interaction">
+          </label>
+
+          <label>
+            Progress summary
+            <textarea id="progressSummary" rows="3" placeholder="Describe engagement, progress, and prompting needed."></textarea>
+          </label>
+
+          <div class="field-grid">
+            <label>
+              Next session date
+              <input id="nextDate" type="date">
+            </label>
+            <label>
+              Next focus
+              <input id="nextFocus" type="text" placeholder="Increasing independence in communication and reducing maladaptive behaviors">
+            </label>
+          </div>
+
+          <div class="button-row">
+            <button id="generateNote" type="button">Generate note</button>
+            <button id="copyGenerated" type="button" class="secondary">Copy</button>
+          </div>
+        </aside>
+
+        <section class="panel editor" aria-label="Note inspector">
+          <div class="panel-header">
+            <h2>Inspector</h2>
+            <div class="button-row compact">
+              <button id="inspectNote" type="button">Inspect</button>
+              <button id="copyFinal" type="button" class="secondary">Copy note</button>
+            </div>
+          </div>
+
+          <label class="note-label" for="noteText">Paste or edit session note</label>
+          <textarea id="noteText" class="note-box" spellcheck="true" placeholder="Paste an RBT session note here, or generate one from the smart generator."></textarea>
+
+          <div class="results-grid">
+            <section class="result-panel">
+              <h3>Checklist</h3>
+              <ul id="checklist" class="checklist"></ul>
+            </section>
+            <section class="result-panel">
+              <h3>Revision Coach</h3>
+              <div id="revisionCoach" class="coach"></div>
+            </section>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel payer-panel" aria-label="Payer profile">
+        <div>
+          <h2>Payer Profile</h2>
+          <p>This tool uses a conservative Florida Medicaid-style ABA note rubric: measurable data, operational definitions, ABC documentation when behavior occurs, named ABA interventions, client response, and session narrative. Payer rules can change, so supervisors should compare output with the current payer contract and treatment plan before billing.</p>
+        </div>
+        <div class="payer-tags" aria-label="Common Florida payer review modes">
+          <span>Florida Medicaid</span>
+          <span>Managed Medicaid</span>
+          <span>Commercial ABA</span>
+          <span>Internal QA</span>
+        </div>
+      </section>
+    </main>
+
+    <template id="replacementTemplate">
+      <details class="entry" open>
+        <summary>Skill / replacement program <span></span></summary>
+        <div class="entry-grid">
+          <label>Program / skill<input data-field="name" type="text" placeholder="Manding for break"></label>
+          <label>Trials / data<input data-field="data" type="text" placeholder="8/10 independent, 80%"></label>
+          <label>Prompt level<input data-field="prompt" type="text" placeholder="Independent, verbal, gestural"></label>
+          <label>Skill intervention<input data-field="intervention" type="text" placeholder="FCT, prompt fading, DRA"></label>
+          <label>Target behavior observed<input data-field="behavior" type="text" placeholder="Whining, task refusal, elopement, or none"></label>
+          <label>Behavior definition<input data-field="definition" type="text" placeholder="Observable definition with onset/offset"></label>
+          <label>Frequency / duration<input data-field="behaviorData" type="text" placeholder="2 occurrences lasting under 1 minute each"></label>
+          <label>Antecedent<input data-field="antecedent" type="text" placeholder="Demand, transition, denial, waiting period"></label>
+          <label>Consequence<input data-field="consequence" type="text" placeholder="Prompted, redirected, reinforced, returned to task"></label>
+          <label class="wide">Behavior intervention used<textarea data-field="behaviorIntervention" rows="2" placeholder="FCT, DRA, DRI, redirection, response blocking, prompt hierarchy"></textarea></label>
+          <label class="wide">How client responded<textarea data-field="response" rows="3" placeholder="Client complied after verbal prompt; behavior reduced; client returned to task; required model prompt"></textarea></label>
+        </div>
+      </details>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
