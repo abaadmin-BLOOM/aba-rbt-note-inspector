@@ -153,13 +153,15 @@ function createEntry(templateId, entry = {}, index = 0) {
   const template = $(`#${templateId}`);
   const node = template.content.firstElementChild.cloneNode(true);
   node.querySelector("summary span").textContent = index + 1;
-
-  Object.entries(entry).forEach(([field, value]) => {
-    const input = node.querySelector(`[data-field="${field}"]`);
-    if (input) input.value = value;
-  });
+  fillEntry(node, entry);
 
   return node;
+}
+
+function fillEntry(entryNode, values = {}) {
+  entryNode.querySelectorAll("[data-field]").forEach(input => {
+    input.value = values[input.dataset.field] || "";
+  });
 }
 
 function addReplacementEntry() {
@@ -177,6 +179,30 @@ function updateEntryControls(containerId) {
     const summary = entry.querySelector("summary");
     summary.querySelector("span").textContent = index + 1;
 
+    let actions = summary.querySelector(".entry-actions");
+    if (!actions) {
+      actions = document.createElement("span");
+      actions.className = "entry-actions";
+      summary.appendChild(actions);
+    }
+
+    let resetButton = actions.querySelector(".reset-entry");
+    if (!resetButton) {
+      resetButton = document.createElement("button");
+      resetButton.type = "button";
+      resetButton.className = "reset-entry";
+      resetButton.textContent = "↺";
+      resetButton.title = "Reset this program";
+      resetButton.setAttribute("aria-label", "Reset this skill or replacement program");
+      resetButton.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        fillEntry(entry, {});
+        inspectNote();
+      });
+      actions.appendChild(resetButton);
+    }
+
     let removeButton = summary.querySelector(".remove-entry");
     if (entries.length > 3) {
       if (!removeButton) {
@@ -191,7 +217,7 @@ function updateEntryControls(containerId) {
           updateEntryControls(containerId);
           inspectNote();
         });
-        summary.appendChild(removeButton);
+        actions.appendChild(removeButton);
       }
       removeButton.hidden = false;
     } else if (removeButton) {
@@ -389,14 +415,18 @@ function resetForm() {
   $("#sessionDate").value = "";
   $("#arrivalNote").value = "";
   $("#supervisor").value = "";
-  $("#services").value = "DTT, NET, FCT, DRA, prompt fading";
-  $("#safetyNotes").value = "No environmental changes, medical concerns, or safety concerns were reported or observed during the session.";
-  $("#pairingNote").value = "RBT performed pairing by involving the learner in preferred activities. The learner appeared alert, motivated, and compliant, evidenced by smiles, play, and appropriate interaction with the RBT.";
-  $("#reinforcers").value = "verbal praise, tokens, access to blocks, drawing materials, short play breaks, and social interaction";
+  $("#services").value = "";
+  $("#safetyNotes").value = "";
+  $("#pairingNote").value = "";
+  $("#reinforcers").value = "";
   $("#progressSummary").value = "";
   $("#nextDate").value = "";
   $("#nextFocus").value = "";
-  hydrateEntries("replacementInputs", "replacementTemplate", replacementDefaults);
+  $("#noteText").value = "";
+  hydrateEntries("replacementInputs", "replacementTemplate", [{}, {}, {}]);
+  renderScore(0);
+  renderChecklist(checks.map(check => ({ ...check, passed: false })));
+  renderCoach([], "");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
