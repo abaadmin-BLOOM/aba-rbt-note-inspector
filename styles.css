@@ -280,6 +280,31 @@ textarea {
   padding: 11px 12px;
 }
 
+.entry-actions {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.reset-entry {
+  align-items: center;
+  background: var(--accent);
+  border: 3px solid #0b66d8;
+  border-radius: 8px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 1rem;
+  height: 34px;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0;
+  width: 34px;
+}
+
+.reset-entry:hover {
+  background: var(--accent-dark);
+}
+
 .remove-entry {
   background: transparent;
   color: var(--bad);
