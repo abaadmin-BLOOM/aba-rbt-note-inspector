@@ -18,3 +18,4 @@ The app runs locally in the browser and does not require a backend, database, or
 
 Do not enter Protected Health Information (PHI) unless this tool is being used under your organization's HIPAA/privacy policies and approved hosting environment.
 
+
